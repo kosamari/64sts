@@ -21,8 +21,8 @@ app.get('/', function (req, res) {
 
 
 app.use(notfound);
-app.listen(process.env.PORT || 5040);
-console.log('listening on port 5040');
+app.listen(process.env.PORT || 5050);
+console.log('listening on port 5050');
 
 
 function notfound (req, res, next){
