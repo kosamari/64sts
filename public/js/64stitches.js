@@ -30,6 +30,15 @@ function SixtyFourStiches(stsLimit) {
     this.name     = "SyntaxError";
   }
 
+  function CastOnError(message) {
+    this.message  = message;
+    this.name     = "CastOnError";
+  }
+  function LengthError(message) {
+    this.message  = message;
+    this.name     = "LengthError";
+  }
+
   peg$subclass(SyntaxError, Error);
 
   function parse(input) {
@@ -592,12 +601,12 @@ function SixtyFourStiches(stsLimit) {
                 string += chunk[0];
               }
             }else{
-              throw new Error('Length of pattern exceeds limit');
+              throw new LengthError('Length of the pattern exceeds '+limit+' stitches limit');
             }
           }else if(string.length < limit){
             string += chunk;
           }else{
-            throw new Error('Length of pattern exceeds limit');
+              throw new LengthError('Length of the pattern exceeds '+limit+' stitches limit');
           }
         });
         return string;
@@ -605,7 +614,7 @@ function SixtyFourStiches(stsLimit) {
 
       function castonPattern(co, p){
         if(co > limit || co < 1){
-          throw new Error('CO out of range');
+          throw new CastOnError('CO must be between 0 - '+limit)
         }
         var mod = p.length % co;
         var re = (p.length - mod) / co;
@@ -638,6 +647,8 @@ function SixtyFourStiches(stsLimit) {
 
   return {
     SyntaxError: SyntaxError,
+    CastOnError: CastOnError,
+    LengthError: LengthError,
     parse:       parse
   };
 }

@@ -8,53 +8,201 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
     <title>64 Stitches</title>
-    <meta name="description" content="knit pattern generator" />
+    <meta name="description" content="knitting pattern generation language" />
     <meta name="author" content="Mariko Kosaka" />
-    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,300,400italic,400,600italic,600,700italic,700,800italic,800" rel="stylesheet" type="text/css">
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript" charset="utf-8"></script>
+    <link href='http://fonts.googleapis.com/css?family=Averia+Serif+Libre' rel='stylesheet' type='text/css'>
 
-      <link href="test.css" rel="stylesheet">
+
+    <link href="test.css" rel="stylesheet">
 
     <style type="text/css">
+    *{
+      font-family: serif;
+    }
+    h1{
+      font-family: 'Averia Serif Libre', serif;
+      font-size: 4.5em;
+      text-align: center;
+      margin-bottom: 0px;
+    }
+    h2{
+      font-family: 'Averia Serif Libre', serif;
+      text-align: center;
+      font-size: 1.5em
+    }
+    h3{
+      font-family: 'Averia Serif Libre', serif;
+      margin-bottom: 0px;
+    }
 
+    #main{
+      width:70%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #head{
+      padding-right: 20px;
+      padding-left: 20px;
+      padding-bottom: 30px;
+      margin-bottom: 30px;
+      background-color: white;
+      position:relative;
+    }
+    canvas{
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
+    }
+    code{
+      font-family: monospace;
+    }
+    textarea{
+      background-color: #eeeeee;
+      width:100%;
+      height:50px;
+      font-size: 1.5em;
+      line-height: 1.3em;
+      font-family: monospace;
+      border:none;
+    }
+    textarea:focus{
+      outline: none !important;
+      border:1px solid;
+    }
+    p{
+      margin-top: 2px;
+    }
+    #error{
+      color:#EB4D5C;
+    }
+    a{
+      border:none;
+      margin-top:15px;
+      padding:5px;
+      background-color: #999;
+      font-size:1em;
+    }
+    a:hover{
+      background-color: #4A83AF;
+    }
     </style>
   </head>
 
   <body>
-  <h1>64 Stiches</h1>
-  <canvas id="canvas"></canvas>
+  <div id="main">
+    <div id="head">
+      <h1>64 Stitches</h1>
+      <h2>Pattern Generation language</h2>
+
+      <p class="centered">
+      When you program an electric knitting machine, "64" is a number of stitches which can fit to two hexadecimal value (the smallest unit of compressed data for the machine). <b><em>64 Stitches</em></b> is a simple language to explore textile pattern that can be generated in just 64 stiches.
+      </p>
+
+      <h3>Cast On</h3>
+      <p>"Cast On" is a term used to to put initial stitches on knitting needle. This is what defines starting width of a fabric.  
+      To start a pattern, use 'CO' followed by number of stitches to cast on.</p>
+      <h3>Stitch</h3>
+      <p>
+      Atomic unit for knitted fabric is binary - "knit & purl" or "base color & contrast color".  
+      To make a stitch, type 0 or 1.
+
+      </p>
+      <h3>Loop</h3>
+      <p>
+        In knitting, we count remaining stitches instead for multiplier for repeating pattern.
+        If you have 20 stitches on your needle and want to repeat 3 stitches pattern for 5 times, you would say <em>[pattern] until 5 stitches remaining</em>.
+      </p>
+      <h3>Try it</h3>
+      <p>see what kind of pattern you can generate in 2 lines of code.</p>
+      <textarea id="code" name="codebox">
+CO 10
+01110100 until 8 sts remain 1010</textarea>
+<div id="error"></div>
+<a id="save">Save Pattern</a>
+
+
+      <h2>Swatch</h2>
+      <canvas id="canvas"></canvas>
+    </div>
+  </div>
+
   <footer>
+  <!-- github/twitter link -->
   </footer>
   <script src="/js/64stitches.js"></script>
   <script>
+    var parser = new SixtyFourStiches(64)
     var canvas = document.getElementById('canvas');
-    var show = document.getElementById('show');
 
-    function draw(x,y,c) {
+    function drawRect(x, y, color, w, h) {
       if (canvas.getContext) {
         var ctx = canvas.getContext('2d');
-        ctx.fillStyle = c;
-        ctx.fillRect(x,y,10,10);
+        ctx.fillStyle = color;
+        ctx.fillRect(x,y,w||100,h||100);
       }
     }
 
-    var parser = new SixtyFourStiches(64)
-    var pattern = parser.parse('CO 64, 01101100 until 8 sts remain 1010')
     function callcanvas(p){
       var rows = p.split('\n');
-      canvas.width = rows[0].length*10;
-      canvas.height = rows.length*10;
+      canvas.width = rows[0].length * 10;
+      canvas.height = rows.length * 10;
+      var coler ={
+        1:'black',
+        0:'white'
+      }
       rows.map(function(r,y){
         r.split('').map(function(s,x){
-          if(s==='1'){draw(x*10,y*10,'black')}
-          else{draw(x*10,y*10,'white')}
+          if(s==='1'){ drawRect(x*10, y*10, 'black')
+          }
+          else{drawRect(x*10,y*10,'white')}
         })
       })
-      var data = canvas.toDataURL("image/bmp", 1.0);
+      var data = canvas.toDataURL("image/png", 1.0);
       document.body.style.background = 'url('+data+') repeat right top';
-      console.log(data)
     }
-    callcanvas(pattern)
+
+
+    document.getElementById('code').onkeyup = function(event) {
+      evaluateCode();
+    }
+    document.getElementById('code').onfocus = function(event) {
+      //button enable
+      evaluateCode();
+    }
+
+    function downloadCanvas(link, canvasId, filename) {
+        link.href = document.getElementById(canvasId).toDataURL()
+        link.download = filename;
+    }
+
+    document.getElementById('save').onclick = function() {
+        var code = encodeURI(document.getElementById('code').value)
+        $.get('/save?code='+code,function(r){
+          console.log()
+        })
+        downloadCanvas(this, 'canvas', 'test.png');
+    };
+
+    function evaluateCode(){
+      var code = document.getElementById('code').value
+      try{
+        parser.parse(code)
+        callcanvas(parser.parse(code))
+        document.getElementById('error').innerHTML = ''
+      }catch (e) {
+        // button disable
+        document.body.style.background = 'none';
+        if(e.name==='SyntaxError'){
+          document.getElementById('error').innerHTML = 'syntax error: you can only use 0 and 1 for stiches, check out how knitters count loop too.'
+        }else if(e.name==='CastOnError'){
+          document.getElementById('error').innerHTML = e.message
+        }else if(e.name==='LengthError'){
+          document.getElementById('error').innerHTML = e.message
+        }
+      }
+    }
+
   </script>
   </div>
   {{> ga}}

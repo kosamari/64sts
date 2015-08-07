@@ -3,6 +3,16 @@ var path = require('path');
 var hbs = require('hbs');
 var fs = require('fs');
 var favicon = require('serve-favicon');
+var bunyan = require('bunyan');
+var log = bunyan.createLogger({ 
+                name: '64sts',
+                streams: [
+                    {
+                        level: 'info',
+                        path: './64sts.log'
+                    }
+                ]
+            });
 
 var app = module.exports = express();
 
@@ -17,6 +27,15 @@ app.use(express.static(path.join(__dirname + '/public')));
 
 app.get('/', function (req, res) {
   res.render(__dirname + '/views/index.html');
+});
+
+app.get('/save', function(req, res){
+  log.info(req.query);
+  res.send(200)
+})
+
+app.get('/pattern', function (req, res) {
+  res.render(__dirname + '/views/pattern.html');
 });
 
 
