@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+    Remove this if you use the .htaccess -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>64 Stitches</title>
+    <meta name="description" content="knit pattern generator" />
+    <meta name="author" content="Mariko Kosaka" />
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,300,400italic,400,600italic,600,700italic,700,800italic,800" rel="stylesheet" type="text/css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+      <link href="test.css" rel="stylesheet">
+
+    <style type="text/css">
+
+    </style>
+  </head>
+
+  <body>
+  <h1>64 Stiches</h1>
+  <canvas id="canvas"></canvas>
+  <footer>
+  </footer>
+  <script src="/js/64stitches.js"></script>
+  <script>
+    var canvas = document.getElementById('canvas');
+    var show = document.getElementById('show');
+
+    function draw(x,y,c) {
+      if (canvas.getContext) {
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = c;
+        ctx.fillRect(x,y,10,10);
+      }
+    }
+
+    var parser = new SixtyFourStiches(64)
+    var pattern = parser.parse('CO 64, 01101100 until 8 sts remain 1010')
+    function callcanvas(p){
+      var rows = p.split('\n');
+      canvas.width = rows[0].length*10;
+      canvas.height = rows.length*10;
+      rows.map(function(r,y){
+        r.split('').map(function(s,x){
+          if(s==='1'){draw(x*10,y*10,'black')}
+          else{draw(x*10,y*10,'white')}
+        })
+      })
+      var data = canvas.toDataURL("image/bmp", 1.0);
+      document.body.style.background = 'url('+data+') repeat right top';
+      console.log(data)
+    }
+    callcanvas(pattern)
+  </script>
+  </div>
+  {{> ga}}
+  </body>
+</html>
