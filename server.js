@@ -34,8 +34,9 @@ app.get('/save', function(req, res){
   res.send(200)
 })
 
-app.get('/pattern', function (req, res) {
-  res.render(__dirname + '/views/pattern.html');
+app.get('/p', function (req, res) {
+  log.info(req.query);
+  res.render(__dirname + '/views/pattern.html',{code:decodeURI(req.query.code)});
 });
 
 

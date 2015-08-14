@@ -8,22 +8,83 @@
     <meta name="description" content="knitting pattern generation language" />
     <meta name="author" content="Mariko Kosaka" />
 
-
-    <link href="test.css" rel="stylesheet">
-
     <style type="text/css">
-
+      textarea{
+      padding:15px;
+      background-color: #fefefe;
+      width:350px;
+      height:150px;
+      font-size: 1.3em;
+      line-height: 1.3em;
+      font-family: monospace;
+      border:none;
+    }
+    textarea:focus{
+      outline: none !important;
+    }
     </style>
   </head>
 
   <body>
-  <div id="main">
-    
-  </div>
-  <canvas hidden></canvas>
+  <textarea id="code" readonly>{{code}}</textarea>
+  <a href="https://twitter.com/share" class="twitter-share-button" data-text="Look at knitting pattern made by code!" data-via="kosamari" data-size="large" data-count="none" data-hashtags="64sts" data-dnt="true">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+  
+  <div id="error"></div>
+  <canvas id='canvas' hidden></canvas>
+  <script src="/js/64stitches.js"></script>
+  <script>
+    var parser = new SixtyFourStiches(64)
+    var canvas = document.getElementById('canvas');
 
+    function drawRect(x, y, color, w, h) {
+      if (canvas.getContext) {
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = color;
+        ctx.fillRect(x,y,w||100,h||100);
+      }
+    }
 
-  </div>
+    function callcanvas(p){
+      var rows = p.pattern.split('\n');
+      canvas.width = rows[0].length * 10;
+      canvas.height = rows.length * 10;
+      var coler ={
+        1:'black',
+        0:'white'
+      }
+      rows.map(function(r,y){
+        r.split('').map(function(s,x){
+          if(s==='*'){ drawRect(x*10, y*10, 'black')
+          }
+          else{drawRect(x*10,y*10,'white')}
+        })
+      })
+      var data = canvas.toDataURL("image/png", 1.0);
+      document.body.style.background = 'url('+data+') repeat right top';
+    }
+
+    // function evaluateCode(){
+      var code = document.getElementById('code').value
+      try{
+        parser.parse(code)
+        callcanvas(parser.parse(code))
+        document.getElementById('error').innerHTML = ''
+      }catch (e) {
+        document.body.style.background = 'none';
+        if(e.name==='SyntaxError'){
+          document.getElementById('error').innerHTML = 'syntax error: use _ and * for stitches. Code mast start with Cast On'
+        }else if(e.name==='CastOnError'){
+          document.getElementById('error').innerHTML = e.message
+        }else if(e.name==='LengthError'){
+          document.getElementById('error').innerHTML = e.message
+        }else if(e.name==='LoopError'){
+          document.getElementById('error').innerHTML = e.message
+        }
+      }
+    // }
+   // evaluateCode()
+  </script>
   {{> ga}}
   </body>
 </html>

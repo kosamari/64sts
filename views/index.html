@@ -93,9 +93,8 @@
       <button id="diagnal-sample">diagnal</button>
       <div id="error"></div>
       <textarea id="code" name="codebox"></textarea>
-      <a id="save"><button id="diagnal-sample">Save Pattern</button></a>
-
-
+      <a id="save"><button id="diagnal-sample">Download Swatch</button></a>
+      <a id="link" href='' target='_blank'><button id="diagnal-sample">Share Pattern (open in new window)</button></a>
       <h2>Swatch</h2>
       <canvas id="canvas"></canvas>
     </div>
@@ -216,6 +215,7 @@ _**__**__**__**_
       try{
         parser.parse(code)
         callcanvas(parser.parse(code))
+        $('#link').attr("href", "/p?code="+encodeURI(code));
         document.getElementById('error').innerHTML = ''
       }catch (e) {
         document.body.style.background = 'none';
