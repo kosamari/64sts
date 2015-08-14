@@ -1,22 +1,45 @@
 {
   var limit = 64;
 
-  function decodePattern(chunks){
+  function CastOnError(message) {
+    this.message  = message;
+    this.name     = "CastOnError";
+  }
+
+  function LengthError(message) {
+    this.message  = message;
+    this.name     = "LengthError";
+  }
+
+  function LoopError(message) {
+    this.message  = message;
+    this.name     = "LoopError";
+  }
+
+  function decodePattern(lines){
+    var chunks = []
+    lines.map(function(line){
+      if(Array.isArray(line) && line[0].length>0){
+        chunks.push(line)
+      }
+    })
+
     var string = '';
     chunks.map(function(chunk){
-      if(Array.isArray(chunk)){
+      if(chunk.length===1){
+        string += chunk[0].join('');
+        if(string.length > limit){
+          throw new LengthError('Length of the pattern exceeds '+limit+' stitches');
+        }
+      }else{
         var space = limit - (string.length + chunk[1]);
         if(space % chunk[0].length === 0){
           for(var i = 0; i < space / chunk[0].length; i++){
-            string += chunk[0];
+            string += chunk[0].join('');
           }
         }else{
-          throw new Error('Length of pattern exceeds limit');
+          throw new LoopError('Not enough space for loop, check when to end loop');
         }
-      }else if(string.length < limit){
-        string += chunk;
-      }else{
-        throw new Error('Length of pattern exceeds limit');
       }
     });
     return string;
@@ -24,7 +47,7 @@
 
   function castonPattern(co, p){
     if(co > limit || co < 1){
-      throw new Error('CO out of range');
+      throw new CastOnError('CO must be between 0 - '+limit);
     }
     var mod = p.length % co;
     var re = (p.length - mod) / co;
@@ -35,32 +58,29 @@
     if(mod !== 0){
       str += p.substr(-mod);
       for(var j = 0; j < (co - mod); j++){
-        str += '0';
+        str += '_';
       }
     }
-    return str.trim();
+    return {pattern:str.trim(),length:p.length, padded:j};
   }
 }
 
 start    = caston
-
-caston   = 'CO' space co:integer comma nl p:pattern space nl {
-  return castonPattern(co, p)
+caston   = '\n'* (comment '\n'*)* space 'CO' space co:integer p:pattern {
+  return castonPattern(co, decodePattern(p))
 }
 
-pattern  = chunks:chunk+ { return decodePattern(chunks); }
-chunk    = comma space s:stitches { return s }
-stitches = repeat / stitch
+pattern  = lines:line*
+line     = delimiter space data:(comment / repeat / sts) {return data}
 
-repeat   = rset:rset+ 'until' space endat:integer space 'sts remain' {
-  return [rset.join(''), endat]
-}
+comment  = '//' txt {return '//'}
+sts      = sts:['_''*']* space {return [sts]}
 
-rset     = stitch:stitch space { return stitch }
+repeat   = sts:['_''*']+ space 'until' space endat:endat {return [sts, endat]}
+endat    = end / e:integer space 'sts remain' {return e}
+end      = 'end' {return 0}
 
-stitch   = [0-1]
 integer  = digits:[0-9]+ { return parseInt(digits.join(""), 10); }
-
-comma    = ','?
+txt      = [ -~]*
 space    = ' '*
-nl       = '\n'*
+delimiter=  ',' / '\n'

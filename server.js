@@ -4,7 +4,7 @@ var hbs = require('hbs');
 var fs = require('fs');
 var favicon = require('serve-favicon');
 var bunyan = require('bunyan');
-var log = bunyan.createLogger({ 
+var log = bunyan.createLogger({
                 name: '64sts',
                 streams: [
                     {
