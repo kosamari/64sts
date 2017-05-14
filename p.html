@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-
     <title>64 Stitches</title>
     <meta name="description" content="knitting pattern generation language" />
     <meta name="author" content="Mariko Kosaka" />
@@ -26,13 +25,13 @@
   </head>
 
   <body>
-  <textarea id="code" readonly>{{code}}</textarea>
+  <textarea id="code" readonly></textarea>
   <a href="https://twitter.com/share" class="twitter-share-button" data-text="Look at knitting pattern made by code!" data-via="kosamari" data-size="large" data-count="none" data-hashtags="64sts" data-dnt="true">Tweet</a>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-  
+
   <div id="error"></div>
   <canvas id='canvas' hidden></canvas>
-  <script src="/js/64stitches.js"></script>
+  <script src="64stitches.js"></script>
   <script>
     var parser = new SixtyFourStiches(64)
     var canvas = document.getElementById('canvas');
@@ -64,8 +63,7 @@
       document.body.style.background = 'url('+data+') repeat right top';
     }
 
-    // function evaluateCode(){
-      var code = document.getElementById('code').value
+    function evaluateCode(code){
       try{
         parser.parse(code)
         callcanvas(parser.parse(code))
@@ -82,9 +80,30 @@
           document.getElementById('error').innerHTML = e.message
         }
       }
-    // }
-   // evaluateCode()
+    }
+
+    function getParameterByName(name, url) {
+      if (!url) url = window.location.href;
+      name = name.replace(/[\[\]]/g, "\\$&");
+      var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+          results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    var code = getParameterByName('code')
+    document.getElementById('code').value = code
+    evaluateCode(code)
   </script>
-  {{> ga}}
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-66082106-1', 'auto');
+    ga('send', 'pageview');
+  </script>
   </body>
 </html>
